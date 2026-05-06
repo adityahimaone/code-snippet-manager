@@ -53,17 +53,17 @@ export default function SnippetEditor({ snippet, onClose }: SnippetEditorProps) 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="w-full max-w-3xl mx-4 card-virtual relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+      <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto card-virtual relative">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
+          className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors z-10"
         >
           ✕
         </button>
 
-        <h2 className="text-2xl font-display tracking-tight mb-6">
+        <h2 className="text-xl md:text-2xl font-display tracking-tight mb-6">
           {snippet ? 'Edit Snippet' : 'New Snippet'}
         </h2>
 
@@ -97,7 +97,7 @@ export default function SnippetEditor({ snippet, onClose }: SnippetEditorProps) 
           </div>
 
           {/* Language & Tags Row */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-orange-500 text-xs font-medium uppercase tracking-wider mb-2">
                 Language
@@ -148,17 +148,17 @@ export default function SnippetEditor({ snippet, onClose }: SnippetEditorProps) 
           )}
 
           {/* Actions */}
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex flex-col-reverse md:flex-row justify-end gap-3 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="ghost-button"
+              className="ghost-button w-full md:w-auto"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="outlined-button"
+              className="outlined-button w-full md:w-auto"
             >
               {snippet ? 'Update Snippet' : 'Save Snippet'}
             </button>

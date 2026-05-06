@@ -6,6 +6,7 @@ import FilterBar from './filter-bar';
 import SnippetCard from './snippet-card';
 import SnippetEditor from './snippet-editor';
 import SnippetDetail from './snippet-detail';
+import ExportImportButtons from './export-import-buttons';
 import { useState } from 'react';
 
 export default function SnippetsPage() {
@@ -16,19 +17,19 @@ export default function SnippetsPage() {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <header className="border-b border-gray-800 py-8 px-6">
+      <header className="border-b border-gray-800 py-6 md:py-8 px-4 md:px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 md:mb-8">
             <div>
-              <h1 className="text-5xl font-display tracking-tight mb-2">CODE SNIPPETS</h1>
-              <p className="text-orange-500 text-sm">Personal code snippet manager</p>
+              <h1 className="text-3xl md:text-5xl font-display tracking-tight mb-2">CODE SNIPPETS</h1>
+              <p className="text-orange-500 text-xs md:text-sm">Personal code snippet manager</p>
             </div>
             <button
               onClick={() => {
                 setSelectedSnippet(null);
                 setIsCreating(true);
               }}
-              className="outlined-button"
+              className="outlined-button w-full md:w-auto"
             >
               + New Snippet
             </button>
@@ -38,20 +39,21 @@ export default function SnippetsPage() {
       </header>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 md:gap-8">
           {/* Sidebar - Filters */}
           <aside className="lg:col-span-1">
-            <div className="sticky top-8">
+            <div className="lg:sticky lg:top-8 space-y-6 md:space-y-8">
               <FilterBar />
+              <ExportImportButtons />
             </div>
           </aside>
 
           {/* Main - Snippets Grid */}
           <main className="lg:col-span-3">
             {snippets.length === 0 ? (
-              <div className="text-center py-16">
-                <p className="text-gray-500 text-lg mb-4">No snippets found</p>
+              <div className="text-center py-12 md:py-16">
+                <p className="text-gray-500 text-base md:text-lg mb-4">No snippets found</p>
                 <button
                   onClick={() => {
                     setSelectedSnippet(null);
@@ -63,7 +65,7 @@ export default function SnippetsPage() {
                 </button>
               </div>
             ) : (
-              <div className="grid gap-6">
+              <div className="grid gap-4 md:gap-6">
                 {snippets.map((snippet) => (
                   <SnippetCard key={snippet.id} snippet={snippet} />
                 ))}
