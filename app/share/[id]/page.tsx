@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Snippet } from '@/lib/types';
-import { Highlight, themes } from 'react-syntax-highlighter';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { nightOwl } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 export default function SharePage() {
   const params = useParams();
@@ -96,9 +97,8 @@ export default function SharePage() {
             >
               {copied ? 'Copied!' : 'Copy'}
             </button>
-            <Highlight
-              theme={themes.nightOwl}
-              code={snippet.code}
+            <SyntaxHighlighter
+              style={nightOwl}
               language={snippet.language}
               showLineNumbers
               customStyle={{
@@ -110,7 +110,9 @@ export default function SharePage() {
                 border: '1px solid #333',
                 margin: 0,
               }}
-            />
+            >
+              {snippet.code}
+            </SyntaxHighlighter>
           </div>
 
           {/* Tags */}

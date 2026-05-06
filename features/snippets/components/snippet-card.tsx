@@ -2,7 +2,8 @@
 
 import { Snippet } from '@/lib/types';
 import { useSnippetStore } from '@/lib/store/snippet-store';
-import { Highlight, themes } from 'react-syntax-highlighter';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { nightOwl } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useState } from 'react';
 
 export default function SnippetCard({ snippet }: { snippet: Snippet }) {
@@ -42,11 +43,10 @@ export default function SnippetCard({ snippet }: { snippet: Snippet }) {
 
       {/* Code Preview */}
       <div className="relative">
-        <Highlight
-          theme={themes.nightOwl}
-          code={truncateCode(snippet.code)}
-          language={snippet.language}
-          customStyle={{
+          <SyntaxHighlighter
+            style={nightOwl}
+            language={snippet.language}
+            customStyle={{
             background: '#0a0a0a',
             padding: '16px',
             borderRadius: '10px',
@@ -54,8 +54,10 @@ export default function SnippetCard({ snippet }: { snippet: Snippet }) {
             lineHeight: '1.6',
             border: '1px solid #333',
             margin: 0,
-          }}
-        />
+            }}
+          >
+            {snippet.code.slice(0, 200)}
+          </SyntaxHighlighter>
       </div>
 
       {/* Tags */}

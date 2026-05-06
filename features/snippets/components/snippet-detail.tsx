@@ -1,7 +1,8 @@
 'use client';
 
 import { useSnippetStore } from '@/lib/store/snippet-store';
-import { Highlight, themes } from 'react-syntax-highlighter';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { nightOwl } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useState } from 'react';
 
 export default function SnippetDetail() {
@@ -79,12 +80,11 @@ export default function SnippetDetail() {
           >
             {copied ? 'Copied!' : 'Copy'}
           </button>
-          <Highlight
-            theme={themes.nightOwl}
-            code={selectedSnippet.code}
-            language={selectedSnippet.language}
-            showLineNumbers
-            customStyle={{
+            <SyntaxHighlighter
+              style={nightOwl}
+              language={selectedSnippet.language}
+              showLineNumbers
+              customStyle={{
               background: '#0a0a0a',
               padding: '20px',
               borderRadius: '10px',
@@ -93,7 +93,9 @@ export default function SnippetDetail() {
               border: '1px solid #333',
               margin: 0,
             }}
-          />
+          >
+            {selectedSnippet.code}
+          </SyntaxHighlighter>
         </div>
 
         {/* Tags */}
