@@ -7,6 +7,7 @@ import SnippetCard from './snippet-card';
 import SnippetEditor from './snippet-editor';
 import SnippetDetail from './snippet-detail';
 import ExportImportButtons from './export-import-buttons';
+import ThemeSelector from './theme-selector';
 import { useState } from 'react';
 
 export default function SnippetsPage() {
@@ -46,6 +47,7 @@ export default function SnippetsPage() {
             <div className="lg:sticky lg:top-8 space-y-6 md:space-y-8">
               <FilterBar />
               <ExportImportButtons />
+              <ThemeSelector />
             </div>
           </aside>
 
