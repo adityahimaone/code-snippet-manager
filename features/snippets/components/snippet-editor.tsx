@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useSnippetStore } from '@/lib/store/snippet-store';
 import { SUPPORTED_LANGUAGES, Snippet } from '@/lib/types';
+import CodePreview from './code-preview';
 
 interface SnippetEditorProps {
   snippet?: Snippet | null;
@@ -11,6 +12,7 @@ interface SnippetEditorProps {
 
 export default function SnippetEditor({ snippet, onClose }: SnippetEditorProps) {
   const { addSnippet, updateSnippet } = useSnippetStore();
+  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
   const [title, setTitle] = useState(snippet?.title || '');
   const [description, setDescription] = useState(snippet?.description || '');
   const [code, setCode] = useState(snippet?.code || '');
@@ -67,7 +69,34 @@ export default function SnippetEditor({ snippet, onClose }: SnippetEditorProps) 
           {snippet ? 'Edit Snippet' : 'New Snippet'}
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6 border-b border-gray-800">
+          <button
+            type="button"
+            onClick={() => setActiveTab('edit')}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${
+              activeTab === 'edit'
+                ? 'text-orange-500 border-b-2 border-orange-500'
+                : 'text-gray-500 hover:text-white'
+            }`}
+          >
+            Edit
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('preview')}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${
+              activeTab === 'preview'
+                ? 'text-orange-500 border-b-2 border-orange-500'
+                : 'text-gray-500 hover:text-white'
+            }`}
+          >
+            Preview
+          </button>
+        </div>
+
+        {activeTab === 'edit' ? (
+          <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title */}
           <div>
             <label className="block text-orange-500 text-xs font-medium uppercase tracking-wider mb-2">
@@ -164,6 +193,9 @@ export default function SnippetEditor({ snippet, onClose }: SnippetEditorProps) 
             </button>
           </div>
         </form>
+        ) : (
+          <CodePreview code={code} language={language} />
+        )}
       </div>
     </div>
   );
