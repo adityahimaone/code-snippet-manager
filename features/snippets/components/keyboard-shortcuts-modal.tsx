@@ -13,30 +13,34 @@ export default function KeyboardShortcutsModal({ onClose }: KeyboardShortcutsMod
   ];
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'var(--bg-overlay)', backdropFilter: 'blur(4px)' }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-    >
-      <div
-        className="card w-full max-w-md"
-        style={{ background: 'var(--bg-card)', padding: '24px' }}
-      >
-        <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Keyboard Shortcuts</h2>
+    <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="modal-card w-full max-w-sm" style={{ padding: '24px' }}>
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>Keyboard Shortcuts</h2>
+          <button onClick={onClose} className="btn-icon" style={{ width: '28px', height: '28px', borderRadius: '7px' }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {shortcuts.map((s, i) => (
-            <div key={i} className="flex justify-between items-center">
-              <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{s.description}</span>
+            <div
+              key={i}
+              className="flex justify-between items-center py-2 px-3 rounded-lg"
+              style={{ background: i % 2 === 0 ? 'var(--border-subtle)' : 'transparent' }}
+            >
+              <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{s.description}</span>
               <div className="flex gap-1">
                 {s.keys.map((key, j) => (
                   <kbd
                     key={j}
-                    className="px-2 py-0.5 text-xs rounded-md font-mono"
+                    className="text-[11px] font-semibold px-2 py-0.5 rounded-md"
                     style={{
-                      background: 'var(--bg-page)',
+                      background: 'var(--bg-card)',
                       border: '1px solid var(--border-default)',
-                      color: 'var(--text-secondary)',
+                      color: 'var(--text-primary)',
+                      fontFamily: 'var(--font-sans)',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
                     }}
                   >
                     {key}
@@ -46,8 +50,6 @@ export default function KeyboardShortcutsModal({ onClose }: KeyboardShortcutsMod
             </div>
           ))}
         </div>
-
-        <button onClick={onClose} className="btn-ghost w-full mt-6">Close</button>
       </div>
     </div>
   );

@@ -17,11 +17,11 @@ export default function FilterBar() {
   const hasFilters = selectedLanguage || selectedTags.length > 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Language Filter */}
       <div>
         <span className="section-label">Language</span>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           <button
             onClick={() => setSelectedLanguage(null)}
             className={`pill-filter ${!selectedLanguage ? 'active' : ''}`}
@@ -44,7 +44,7 @@ export default function FilterBar() {
       {tags.length > 0 && (
         <div>
           <span className="section-label">Tags</span>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5">
             {tags.map((tag) => {
               const isActive = selectedTags.includes(tag);
               return (
@@ -59,7 +59,7 @@ export default function FilterBar() {
                   }}
                   className={`pill-filter ${isActive ? 'active' : ''}`}
                   style={isActive ? {
-                    background: 'rgba(216, 114, 60, 0.12)',
+                    background: 'var(--accent-secondary-soft)',
                     borderColor: 'var(--accent-secondary)',
                     color: 'var(--accent-secondary)',
                   } : undefined}
@@ -74,7 +74,8 @@ export default function FilterBar() {
 
       {/* Reset */}
       {hasFilters && (
-        <button onClick={resetFilters} className="btn-ghost text-xs">
+        <button onClick={resetFilters} className="btn-ghost text-xs w-full">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
           Reset Filters
         </button>
       )}
