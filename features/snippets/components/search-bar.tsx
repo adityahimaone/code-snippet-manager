@@ -1,15 +1,16 @@
 'use client';
 
 import { useSnippetStore } from '@/lib/store/snippet-store';
-import { useState } from 'react';
+import { useState, forwardRef } from 'react';
 
-export default function SearchBar() {
+const SearchBar = forwardRef<HTMLInputElement>((props, ref) => {
   const { searchQuery, setSearchQuery } = useSnippetStore();
   const [isFocused, setIsFocused] = useState(false);
 
   return (
     <div className="relative">
       <input
+        ref={ref}
         type="text"
         placeholder="Search snippets..."
         value={searchQuery}
@@ -32,4 +33,7 @@ export default function SearchBar() {
       )}
     </div>
   );
-}
+});
+
+SearchBar.displayName = 'SearchBar';
+export default SearchBar;

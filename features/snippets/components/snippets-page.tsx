@@ -8,12 +8,58 @@ import SnippetEditor from './snippet-editor';
 import SnippetDetail from './snippet-detail';
 import ExportImportButtons from './export-import-buttons';
 import ThemeSelector from './theme-selector';
-import { useState } from 'react';
+import KeyboardShortcutsModal from './keyboard-shortcuts-modal';
+import { useKeyboardShortcuts } from '@/lib/hooks/use-keyboard-shortcuts';
+import { useState, useRef } from 'react';
 
 export default function SnippetsPage() {
   const { getFilteredSnippets, setEditorOpen, isEditorOpen, selectedSnippet, setSelectedSnippet } = useSnippetStore();
   const [isCreating, setIsCreating] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const snippets = getFilteredSnippets();
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts([
+    {
+      key: 'n',
+      ctrl: true,
+      description: 'Create new snippet',
+      action: () => {
+        setSelectedSnippet(null);
+        setIsCreating(true);
+      },
+    },
+    {
+      key: 'k',
+      ctrl: true,
+      description: 'Focus search',
+      action: () => {
+        searchInputRef.current?.focus();
+      },
+    },
+    {
+      key: '/',
+      ctrl: true,
+      description: 'Show shortcuts',
+      action: () => {
+        setShowShortcuts(true);
+      },
+    },
+    {
+      key: 'Escape',
+      description: 'Close modal',
+      action: () => {
+        if (showShortcuts) {
+          setShowShortcuts(false);
+        } else if (isCreating) {
+          setIsCreating(false);
+        } else if (selectedSnippet) {
+          setSelectedSnippet(null);
+        }
+      },
+    },
+  ]);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -35,7 +81,7 @@ export default function SnippetsPage() {
               + New Snippet
             </button>
           </div>
-          <SearchBar />
+          <SearchBar ref={searchInputRef} />
         </div>
       </header>
 
@@ -85,6 +131,9 @@ export default function SnippetsPage() {
       )}
       {selectedSnippet && (
         <SnippetDetail />
+      )}
+      {showShortcuts && (
+        <KeyboardShortcutsModal onClose={() => setShowShortcuts(false)} />
       )}
     </div>
   );
