@@ -4,12 +4,12 @@ import { useSnippetStore } from '@/lib/store/snippet-store';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { nightOwl } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useState } from 'react';
+import ShareModal from './share-modal';
 
 export default function SnippetDetail() {
   const { selectedSnippet, setSelectedSnippet, deleteSnippet } = useSnippetStore();
   const [copied, setCopied] = useState(false);
-  const [shareUrl, setShareUrl] = useState('');
-  const [sharing, setSharing] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   if (!selectedSnippet) return null;
 
@@ -17,26 +17,6 @@ export default function SnippetDetail() {
     await navigator.clipboard.writeText(selectedSnippet.code);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleShare = async () => {
-    setSharing(true);
-    try {
-      const res = await fetch('/api/share', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(selectedSnippet),
-      });
-      const data = await res.json();
-      const url = `${window.location.origin}${data.url}`;
-      await navigator.clipboard.writeText(url);
-      setShareUrl(url);
-      setTimeout(() => setShareUrl(''), 5000);
-    } catch (error) {
-      alert('Failed to share snippet');
-    } finally {
-      setSharing(false);
-    }
   };
 
   const handleDelete = () => {
@@ -136,11 +116,10 @@ export default function SnippetDetail() {
           </div>
           <div className="flex gap-2">
             <button
-              onClick={handleShare}
-              disabled={sharing}
-              className="px-4 py-2 text-xs border border-gray-600 rounded text-gray-400 hover:border-orange-500 hover:text-orange-400 transition-all disabled:opacity-50"
+              onClick={() => setShowShareModal(true)}
+              className="px-4 py-2 text-xs border border-gray-600 rounded text-gray-400 hover:border-orange-500 hover:text-orange-400 transition-all"
             >
-              {sharing ? 'Sharing...' : 'Share'}
+              Share
             </button>
             <button
               onClick={handleDelete}
@@ -151,13 +130,12 @@ export default function SnippetDetail() {
           </div>
         </div>
 
-        {/* Share URL notification */}
-        {shareUrl && (
-          <div className="mt-4 p-3 bg-orange-500/10 border border-orange-500/50 rounded-lg">
-            <p className="text-orange-400 text-xs">
-              Share URL copied to clipboard! Valid for 30 days.
-            </p>
-          </div>
+        {/* Share Modal */}
+        {showShareModal && (
+          <ShareModal
+            snippet={selectedSnippet}
+            onClose={() => setShowShareModal(false)}
+          />
         )}
       </div>
     </div>
