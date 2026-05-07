@@ -28,6 +28,42 @@
   --shadow-glow: 0 0 20px rgba(255, 92, 0, 0.1);
 }
 
+/* Light mode overrides */
+[data-theme="light"] {
+  --color-midnight-void: #ffffff;
+  --color-ghost-white: #000000;
+  --color-muted-ash: #666666;
+  --color-accent-orange: #ff5c00;
+}
+
+/* Syntax theme variables */
+[data-syntax-theme="github-dark"] {
+  --syntax-bg: #0d1117;
+  --syntax-text: #c9d1d9;
+  --syntax-comment: #8b949e;
+  --syntax-keyword: #ff7b72;
+  --syntax-string: #a5d6ff;
+  --syntax-function: #d2a8ff;
+}
+
+[data-syntax-theme="monokai"] {
+  --syntax-bg: #272822;
+  --syntax-text: #f8f8f2;
+  --syntax-comment: #75715e;
+  --syntax-keyword: #f92672;
+  --syntax-string: #e6db74;
+  --syntax-function: #a6e22e;
+}
+
+[data-syntax-theme="dracula"] {
+  --syntax-bg: #282a36;
+  --syntax-text: #f8f8f2;
+  --syntax-comment: #6272a4;
+  --syntax-keyword: #ff79c6;
+  --syntax-string: #f1fa8c;
+  --syntax-function: #50fa7b;
+}
+
 @layer base {
   * {
     box-sizing: border-box;
