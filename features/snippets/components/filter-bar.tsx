@@ -17,20 +17,14 @@ export default function FilterBar() {
   const hasFilters = selectedLanguage || selectedTags.length > 0;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Language Filter */}
       <div>
-        <span className="text-orange-500 text-xs font-medium uppercase tracking-wider mb-3 block">
-          Language
-        </span>
+        <span className="section-label">Language</span>
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setSelectedLanguage(null)}
-            className={`px-4 py-2 text-xs rounded-lg border transition-all ${
-              !selectedLanguage
-                ? 'border-white bg-white text-black'
-                : 'border-gray-600 text-gray-400 hover:border-gray-400 hover:text-gray-200'
-            }`}
+            className={`pill-filter ${!selectedLanguage ? 'active' : ''}`}
           >
             All
           </button>
@@ -38,11 +32,7 @@ export default function FilterBar() {
             <button
               key={lang.value}
               onClick={() => setSelectedLanguage(lang.value)}
-              className={`px-4 py-2 text-xs rounded-lg border transition-all ${
-                selectedLanguage === lang.value
-                  ? 'border-white bg-white text-black'
-                  : 'border-gray-600 text-gray-400 hover:border-gray-400 hover:text-gray-200'
-              }`}
+              className={`pill-filter ${selectedLanguage === lang.value ? 'active' : ''}`}
             >
               {lang.label}
             </button>
@@ -53,9 +43,7 @@ export default function FilterBar() {
       {/* Tags Filter */}
       {tags.length > 0 && (
         <div>
-          <span className="text-orange-500 text-xs font-medium uppercase tracking-wider mb-3 block">
-            Tags
-          </span>
+          <span className="section-label">Tags</span>
           <div className="flex flex-wrap gap-2">
             {tags.map((tag) => {
               const isActive = selectedTags.includes(tag);
@@ -69,11 +57,12 @@ export default function FilterBar() {
                       setSelectedTags([...selectedTags, tag]);
                     }
                   }}
-                  className={`px-3 py-1 text-xs rounded-lg border transition-all ${
-                    isActive
-                      ? 'border-orange-500 bg-orange-500/20 text-orange-400'
-                      : 'border-gray-600 text-gray-400 hover:border-gray-400 hover:text-gray-200'
-                  }`}
+                  className={`pill-filter ${isActive ? 'active' : ''}`}
+                  style={isActive ? {
+                    background: 'rgba(216, 114, 60, 0.12)',
+                    borderColor: 'var(--accent-secondary)',
+                    color: 'var(--accent-secondary)',
+                  } : undefined}
                 >
                   #{tag}
                 </button>
@@ -85,10 +74,7 @@ export default function FilterBar() {
 
       {/* Reset */}
       {hasFilters && (
-        <button
-          onClick={resetFilters}
-          className="ghost-button text-xs"
-        >
+        <button onClick={resetFilters} className="btn-ghost text-xs">
           Reset Filters
         </button>
       )}

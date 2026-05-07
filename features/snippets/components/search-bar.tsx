@@ -9,6 +9,12 @@ const SearchBar = forwardRef<HTMLInputElement>((props, ref) => {
 
   return (
     <div className="relative">
+      <span className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.3-4.3"/>
+        </svg>
+      </span>
       <input
         ref={ref}
         type="text"
@@ -17,16 +23,20 @@ const SearchBar = forwardRef<HTMLInputElement>((props, ref) => {
         onChange={(e) => setSearchQuery(e.target.value)}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        className={`w-full px-6 py-3 bg-black border-2 rounded-lg font-body text-sm transition-all ${
-          isFocused
-            ? 'border-white text-white'
-            : 'border-gray-600 text-gray-400'
-        }`}
+        className="input"
+        style={{
+          paddingLeft: '40px',
+          paddingRight: searchQuery ? '40px' : '16px',
+          borderColor: isFocused ? 'var(--text-primary)' : undefined,
+        }}
       />
       {searchQuery && (
         <button
           onClick={() => setSearchQuery('')}
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 hover:text-white transition-colors"
+          className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+          style={{ color: 'var(--text-muted)' }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
         >
           ✕
         </button>

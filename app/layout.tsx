@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
-import { Staatliches, JetBrains_Mono } from "next/font/google";
+import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-
-const staatliches = Staatliches({
-  variable: "--font-display",
-  subsets: ["latin"],
-  weight: "400",
-});
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-mono",
@@ -16,7 +10,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Code Snippet Manager",
-  description: "Personal code snippet manager with dark console aesthetic",
+  description: "Personal code snippet manager",
 };
 
 export default function RootLayout({
@@ -27,9 +21,15 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${staatliches.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-black text-white">
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="min-h-full" style={{ background: 'var(--bg-page)', color: 'var(--text-primary)' }}>
         {children}
       </body>
     </html>

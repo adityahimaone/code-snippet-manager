@@ -3,51 +3,47 @@
 import { useEffect, useState } from 'react';
 
 type ColorTheme = 'dark' | 'light';
-type SyntaxTheme = 'github-dark' | 'monokai' | 'dracula';
+type SyntaxTheme = 'github-dark' | 'monokai' | 'dracula' | 'one-light' | 'nord';
 
 export function useTheme() {
-  const [colorTheme, setColorTheme] = useState<ColorTheme>('dark');
-  const [syntaxTheme, setSyntaxTheme] = useState<SyntaxTheme>('github-dark');
+  const [colorTheme, setColorTheme] = useState<ColorTheme>('light');
+  const [globalSyntaxTheme, setGlobalSyntaxTheme] = useState<SyntaxTheme>('github-dark');
 
   useEffect(() => {
-    // Load from localStorage
-    const savedColorTheme = localStorage.getItem('color-theme') as ColorTheme;
-    const savedSyntaxTheme = localStorage.getItem('syntax-theme') as SyntaxTheme;
-    
-    if (savedColorTheme) {
-      setColorTheme(savedColorTheme);
-      document.documentElement.setAttribute('data-theme', savedColorTheme);
+    const savedColor = localStorage.getItem('color-theme') as ColorTheme;
+    const savedSyntax = localStorage.getItem('syntax-theme') as SyntaxTheme;
+
+    if (savedColor) {
+      setColorTheme(savedColor);
+      document.documentElement.setAttribute('data-theme', savedColor);
     } else {
-      // Detect system preference
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const theme = prefersDark ? 'dark' : 'light';
       setColorTheme(theme);
       document.documentElement.setAttribute('data-theme', theme);
     }
-    
-    if (savedSyntaxTheme) {
-      setSyntaxTheme(savedSyntaxTheme);
-      document.documentElement.setAttribute('data-syntax-theme', savedSyntaxTheme);
+
+    if (savedSyntax) {
+      setGlobalSyntaxTheme(savedSyntax);
     }
   }, []);
 
   const toggleColorTheme = () => {
-    const newTheme = colorTheme === 'dark' ? 'light' : 'dark';
-    setColorTheme(newTheme);
-    localStorage.setItem('color-theme', newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
+    const next = colorTheme === 'dark' ? 'light' : 'dark';
+    setColorTheme(next);
+    localStorage.setItem('color-theme', next);
+    document.documentElement.setAttribute('data-theme', next);
   };
 
-  const changeSyntaxTheme = (theme: SyntaxTheme) => {
-    setSyntaxTheme(theme);
+  const changeGlobalSyntaxTheme = (theme: SyntaxTheme) => {
+    setGlobalSyntaxTheme(theme);
     localStorage.setItem('syntax-theme', theme);
-    document.documentElement.setAttribute('data-syntax-theme', theme);
   };
 
   return {
     colorTheme,
-    syntaxTheme,
+    globalSyntaxTheme,
     toggleColorTheme,
-    changeSyntaxTheme,
+    changeGlobalSyntaxTheme,
   };
 }

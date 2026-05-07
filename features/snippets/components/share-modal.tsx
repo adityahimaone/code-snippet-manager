@@ -21,10 +21,9 @@ export default function ShareModal({ snippet, onClose }: ShareModalProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(snippet),
       });
-      
       const data = await res.json();
       setShareUrl(data.url);
-    } catch (error) {
+    } catch {
       alert('Failed to generate share link');
     } finally {
       setLoading(false);
@@ -38,49 +37,44 @@ export default function ShareModal({ snippet, onClose }: ShareModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 max-w-md w-full">
-        <h2 className="text-2xl font-display mb-4">Share Snippet</h2>
-        
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+      style={{ background: 'var(--bg-overlay)', backdropFilter: 'blur(4px)' }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div
+        className="card w-full max-w-md"
+        style={{ background: 'var(--bg-card)', padding: '24px' }}
+      >
+        <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Share Snippet</h2>
+
         {!shareUrl ? (
           <div>
-            <p className="text-gray-400 mb-4">
+            <p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>
               Generate a public link to share this snippet with anyone.
             </p>
-            <button
-              onClick={handleShare}
-              disabled={loading}
-              className="outlined-button w-full"
-            >
+            <button onClick={handleShare} disabled={loading} className="btn-primary w-full">
               {loading ? 'Generating...' : 'Generate Share Link'}
             </button>
           </div>
         ) : (
           <div>
-            <p className="text-gray-400 mb-2 text-sm">Share this link:</p>
+            <p className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>Share this link:</p>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={shareUrl}
                 readOnly
-                className="flex-1 bg-black border border-gray-700 rounded px-3 py-2 text-sm"
+                className="input flex-1 text-sm"
               />
-              <button
-                onClick={handleCopy}
-                className="outlined-button"
-              >
+              <button onClick={handleCopy} className="btn-primary shrink-0">
                 {copied ? 'Copied!' : 'Copy'}
               </button>
             </div>
           </div>
         )}
-        
-        <button
-          onClick={onClose}
-          className="ghost-button w-full mt-4"
-        >
-          Close
-        </button>
+
+        <button onClick={onClose} className="btn-ghost w-full mt-4">Close</button>
       </div>
     </div>
   );

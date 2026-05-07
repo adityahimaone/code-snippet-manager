@@ -5,7 +5,7 @@ import { useSnippetStore } from '@/lib/store/snippet-store';
 import { exportToJSON, exportToCSV, importFromJSON, importFromCSV } from '@/lib/utils/export-import';
 
 export default function ExportImportButtons() {
-  const { snippets, addSnippet, resetFilters } = useSnippetStore();
+  const { snippets, addSnippet } = useSnippetStore();
   const [importing, setImporting] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -24,7 +24,6 @@ export default function ExportImportButtons() {
   const handleImportJSON = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setImporting(true);
     try {
       const imported = await importFromJSON(file);
@@ -38,7 +37,7 @@ export default function ExportImportButtons() {
         });
       });
       setMessage(`Imported ${imported.length} snippets`);
-    } catch (error) {
+    } catch {
       setMessage('Import failed: Invalid JSON format');
     } finally {
       setImporting(false);
@@ -49,7 +48,6 @@ export default function ExportImportButtons() {
   const handleImportCSV = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setImporting(true);
     try {
       const imported = await importFromCSV(file);
@@ -63,7 +61,7 @@ export default function ExportImportButtons() {
         });
       });
       setMessage(`Imported ${imported.length} snippets`);
-    } catch (error) {
+    } catch {
       setMessage('Import failed: Invalid CSV format');
     } finally {
       setImporting(false);
@@ -73,53 +71,27 @@ export default function ExportImportButtons() {
 
   return (
     <div className="space-y-4">
-      <span className="text-orange-500 text-xs font-medium uppercase tracking-wider block">
-        Export / Import
-      </span>
+      <span className="section-label">Export / Import</span>
 
       <div className="flex flex-col gap-2">
-        {/* Export buttons */}
-        <button
-          onClick={handleExportJSON}
-          disabled={snippets.length === 0}
-          className="ghost-button text-left"
-        >
+        <button onClick={handleExportJSON} disabled={snippets.length === 0} className="btn-ghost text-left text-sm">
           Export JSON
         </button>
-        <button
-          onClick={handleExportCSV}
-          disabled={snippets.length === 0}
-          className="ghost-button text-left"
-        >
+        <button onClick={handleExportCSV} disabled={snippets.length === 0} className="btn-ghost text-left text-sm">
           Export CSV
         </button>
-
-        {/* Import buttons */}
-        <label className="ghost-button text-left cursor-pointer">
+        <label className="btn-ghost text-left text-sm cursor-pointer">
           {importing ? 'Importing...' : 'Import JSON'}
-          <input
-            type="file"
-            accept=".json"
-            onChange={handleImportJSON}
-            className="hidden"
-            disabled={importing}
-          />
+          <input type="file" accept=".json" onChange={handleImportJSON} className="hidden" disabled={importing} />
         </label>
-        <label className="ghost-button text-left cursor-pointer">
+        <label className="btn-ghost text-left text-sm cursor-pointer">
           {importing ? 'Importing...' : 'Import CSV'}
-          <input
-            type="file"
-            accept=".csv"
-            onChange={handleImportCSV}
-            className="hidden"
-            disabled={importing}
-          />
+          <input type="file" accept=".csv" onChange={handleImportCSV} className="hidden" disabled={importing} />
         </label>
       </div>
 
-      {/* Status message */}
       {message && (
-        <p className="text-orange-400 text-xs">{message}</p>
+        <p className="text-xs" style={{ color: 'var(--accent-secondary)' }}>{message}</p>
       )}
     </div>
   );

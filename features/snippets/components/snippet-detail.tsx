@@ -1,17 +1,28 @@
 'use client';
 
 import { useSnippetStore } from '@/lib/store/snippet-store';
+import { SYNTAX_THEMES } from '@/lib/types';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { nightOwl } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useState } from 'react';
 import ShareModal from './share-modal';
 
+const syntaxStyles: Record<string, any> = {
+  'github-dark': nightOwl,
+  'monokai': nightOwl,
+  'dracula': nightOwl,
+  'one-light': nightOwl,
+  'nord': nightOwl,
+};
+
 export default function SnippetDetail() {
-  const { selectedSnippet, setSelectedSnippet, deleteSnippet } = useSnippetStore();
+  const { selectedSnippet, setSelectedSnippet, deleteSnippet, updateSnippet } = useSnippetStore();
   const [copied, setCopied] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
 
   if (!selectedSnippet) return null;
+
+  const currentSyntaxTheme = selectedSnippet.syntaxTheme || 'github-dark';
 
   const copyToClipboard = async () => {
     await navigator.clipboard.writeText(selectedSnippet.code);
@@ -26,118 +37,121 @@ export default function SnippetDetail() {
     }
   };
 
+  const handleSyntaxChange = (theme: string) => {
+    updateSnippet(selectedSnippet.id, { syntaxTheme: theme });
+    setSelectedSnippet({ ...selectedSnippet, syntaxTheme: theme });
+  };
+
+  const formatDate = (d: string) =>
+    new Date(d).toLocaleDateString('en-US', {
+      month: 'short', day: 'numeric', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    });
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto card-virtual relative">
-        {/* Close button */}
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: 'var(--bg-overlay)', backdropFilter: 'blur(4px)' }}
+      onClick={(e) => { if (e.target === e.currentTarget) setSelectedSnippet(null); }}
+    >
+      <div
+        className="card w-full max-w-4xl max-h-[90vh] overflow-y-auto relative"
+        style={{ background: 'var(--bg-card)', padding: '28px' }}
+      >
+        {/* Close */}
         <button
           onClick={() => setSelectedSnippet(null)}
-          className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors z-10"
+          className="absolute top-4 right-4 transition-colors"
+          style={{ color: 'var(--text-muted)' }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
         >
           ✕
         </button>
 
         {/* Header */}
-        <div className="mb-6">
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-3">
-            <h2 className="text-xl md:text-2xl font-display tracking-tight text-white">
+        <div className="mb-5">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-2">
+            <h2 className="text-xl md:text-2xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
               {selectedSnippet.title}
             </h2>
-            <span className="px-3 py-1 text-xs border border-gray-600 rounded text-gray-400 shrink-0 w-fit">
+            <span className="pill-filter shrink-0 w-fit text-[11px] cursor-default" style={{ borderColor: 'var(--accent-secondary)', color: 'var(--accent-secondary)' }}>
               {selectedSnippet.language}
             </span>
           </div>
           {selectedSnippet.description && (
-            <p className="text-gray-400 text-sm">{selectedSnippet.description}</p>
+            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{selectedSnippet.description}</p>
           )}
         </div>
 
+        {/* Syntax Theme Selector */}
+        <div className="flex items-center gap-3 mb-4">
+          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Syntax:</span>
+          <div className="flex gap-1.5">
+            {SYNTAX_THEMES.map((t) => (
+              <button
+                key={t.value}
+                onClick={() => handleSyntaxChange(t.value)}
+                className={`pill-filter text-[10px] py-0.5 px-2.5 ${currentSyntaxTheme === t.value ? 'active' : ''}`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Code */}
-        <div className="relative mb-6">
+        <div className="relative mb-5">
           <button
             onClick={copyToClipboard}
-            className="absolute top-3 right-3 px-3 py-1 text-xs border border-gray-600 rounded text-gray-400 hover:border-white hover:text-white transition-all z-10"
+            className="absolute top-3 right-3 z-10 btn-ghost text-xs py-1 px-3"
           >
             {copied ? 'Copied!' : 'Copy'}
           </button>
+          <div className="code-block" data-syntax={currentSyntaxTheme}>
             <SyntaxHighlighter
-              style={nightOwl}
+              style={syntaxStyles[currentSyntaxTheme] || nightOwl}
               language={selectedSnippet.language}
               showLineNumbers
               customStyle={{
-              background: '#0a0a0a',
-              padding: '20px',
-              borderRadius: '10px',
-              fontSize: '13px',
-              lineHeight: '1.6',
-              border: '1px solid #333',
-              margin: 0,
-            }}
-          >
-            {selectedSnippet.code}
-          </SyntaxHighlighter>
+                background: 'transparent',
+                padding: '0',
+                margin: 0,
+                fontSize: '13px',
+                lineHeight: '1.6',
+              }}
+            >
+              {selectedSnippet.code}
+            </SyntaxHighlighter>
+          </div>
         </div>
 
         {/* Tags */}
         {selectedSnippet.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-6">
+          <div className="flex flex-wrap gap-1.5 mb-5">
             {selectedSnippet.tags.map((tag) => (
-              <span
-                key={tag}
-                className="px-3 py-1 text-xs border border-orange-500/50 rounded text-orange-400 bg-orange-500/10"
-              >
-                #{tag}
-              </span>
+              <span key={tag} className="tag-chip">#{tag}</span>
             ))}
           </div>
         )}
 
-        {/* Meta */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-4 border-t border-gray-800">
-          <div className="text-gray-600 text-xs space-y-1">
-            <p>
-              Created: {new Date(selectedSnippet.createdAt).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </p>
-            <p>
-              Updated: {new Date(selectedSnippet.updatedAt).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </p>
+        {/* Meta + Actions */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-4" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+          <div className="text-xs space-y-0.5" style={{ color: 'var(--text-muted)' }}>
+            <p>Created: {formatDate(selectedSnippet.createdAt)}</p>
+            <p>Updated: {formatDate(selectedSnippet.updatedAt)}</p>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setShowShareModal(true)}
-              className="px-4 py-2 text-xs border border-gray-600 rounded text-gray-400 hover:border-orange-500 hover:text-orange-400 transition-all"
-            >
-              Share
-            </button>
-            <button
-              onClick={handleDelete}
-              className="px-4 py-2 text-xs border border-gray-600 rounded text-gray-400 hover:border-red-500 hover:text-red-400 transition-all"
-            >
-              Delete
-            </button>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => setShowShareModal(true)} className="btn-accent text-xs">Share</button>
+            <button onClick={handleDelete} className="text-xs py-1.5 px-4 rounded-full transition-all cursor-pointer" style={{ border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', background: 'transparent' }} onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}>Delete</button>
+            <button onClick={() => setSelectedSnippet(null)} className="btn-ghost text-xs">Close</button>
           </div>
         </div>
-
-        {/* Share Modal */}
-        {showShareModal && (
-          <ShareModal
-            snippet={selectedSnippet}
-            onClose={() => setShowShareModal(false)}
-          />
-        )}
       </div>
+
+      {showShareModal && (
+        <ShareModal snippet={selectedSnippet} onClose={() => setShowShareModal(false)} />
+      )}
     </div>
   );
 }

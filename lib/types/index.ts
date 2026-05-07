@@ -5,6 +5,7 @@ export interface Snippet {
   code: string;
   language: string;
   tags: string[];
+  syntaxTheme?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -35,4 +36,17 @@ export const SUPPORTED_LANGUAGES: LanguageOption[] = [
   { value: 'dockerfile', label: 'Dockerfile' },
   { value: 'graphql', label: 'GraphQL' },
   { value: 'text', label: 'Plain Text' },
+];
+
+export type SyntaxThemeOption = {
+  value: string;
+  label: string;
+};
+
+export const SYNTAX_THEMES: SyntaxThemeOption[] = [
+  { value: 'github-dark', label: 'GitHub Dark' },
+  { value: 'monokai', label: 'Monokai' },
+  { value: 'dracula', label: 'Dracula' },
+  { value: 'one-light', label: 'One Light' },
+  { value: 'nord', label: 'Nord' },
 ];

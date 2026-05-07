@@ -10,7 +10,6 @@ interface SnippetStore {
   selectedSnippet: Snippet | null;
   isEditorOpen: boolean;
 
-  // Actions
   addSnippet: (snippet: Omit<Snippet, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updateSnippet: (id: string, updates: Partial<Snippet>) => void;
   deleteSnippet: (id: string) => void;
@@ -21,7 +20,6 @@ interface SnippetStore {
   setEditorOpen: (open: boolean) => void;
   resetFilters: () => void;
 
-  // Getters
   getAllTags: () => string[];
   getFilteredSnippets: () => Snippet[];
 }

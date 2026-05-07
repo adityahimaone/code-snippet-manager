@@ -1,38 +1,38 @@
 'use client';
 
 import { useTheme } from '@/lib/hooks/use-theme';
+import { SYNTAX_THEMES } from '@/lib/types';
 
 export default function ThemeSelector() {
-  const { colorTheme, syntaxTheme, toggleColorTheme, changeSyntaxTheme } = useTheme();
+  const { colorTheme, globalSyntaxTheme, toggleColorTheme, changeGlobalSyntaxTheme } = useTheme();
 
   return (
     <div className="space-y-4">
-      <span className="text-orange-500 text-xs font-medium uppercase tracking-wider block">
-        Themes
-      </span>
+      <span className="section-label">Theme</span>
 
-      {/* Color Theme Toggle */}
+      {/* Color Mode */}
       <div>
-        <label className="text-xs text-gray-400 block mb-2">Color Mode</label>
+        <label className="text-xs block mb-2" style={{ color: 'var(--text-muted)' }}>Color Mode</label>
         <button
           onClick={toggleColorTheme}
-          className="ghost-button w-full text-left"
+          className="btn-ghost w-full text-left text-sm"
         >
           {colorTheme === 'dark' ? '🌙 Dark' : '☀️ Light'}
         </button>
       </div>
 
-      {/* Syntax Theme Selector */}
+      {/* Default Syntax Theme */}
       <div>
-        <label className="text-xs text-gray-400 block mb-2">Syntax Theme</label>
+        <label className="text-xs block mb-2" style={{ color: 'var(--text-muted)' }}>Default Syntax</label>
         <select
-          value={syntaxTheme}
-          onChange={(e) => changeSyntaxTheme(e.target.value as any)}
-          className="w-full bg-black border border-gray-700 rounded px-3 py-2 text-sm"
+          value={globalSyntaxTheme}
+          onChange={(e) => changeGlobalSyntaxTheme(e.target.value as any)}
+          className="input text-sm"
+          style={{ cursor: 'pointer' }}
         >
-          <option value="github-dark">GitHub Dark</option>
-          <option value="monokai">Monokai</option>
-          <option value="dracula">Dracula</option>
+          {SYNTAX_THEMES.map((t) => (
+            <option key={t.value} value={t.value}>{t.label}</option>
+          ))}
         </select>
       </div>
     </div>

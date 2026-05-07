@@ -1,13 +1,21 @@
 'use client';
 
-import { Snippet } from '@/lib/types';
+import { Snippet, SYNTAX_THEMES } from '@/lib/types';
 import { useSnippetStore } from '@/lib/store/snippet-store';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { nightOwl } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useState } from 'react';
 
+const syntaxStyles: Record<string, any> = {
+  'github-dark': nightOwl,
+  'monokai': nightOwl,
+  'dracula': nightOwl,
+  'one-light': nightOwl,
+  'nord': nightOwl,
+};
+
 export default function SnippetCard({ snippet }: { snippet: Snippet }) {
-  const { setSelectedSnippet, setSelectedTags, deleteSnippet } = useSnippetStore();
+  const { setSelectedSnippet, setSelectedTags, deleteSnippet, updateSnippet } = useSnippetStore();
   const [copied, setCopied] = useState(false);
 
   const copyToClipboard = async (e: React.MouseEvent) => {
@@ -17,52 +25,59 @@ export default function SnippetCard({ snippet }: { snippet: Snippet }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const truncateCode = (code: string, maxLines: number = 12) => {
+  const truncateCode = (code: string, maxLines: number = 10) => {
     const lines = code.split('\n');
     if (lines.length <= maxLines) return code;
     return lines.slice(0, maxLines).join('\n') + '\n...';
   };
 
+  const currentSyntaxTheme = snippet.syntaxTheme || 'github-dark';
+
   return (
     <div
-      className="card-virtual cursor-pointer group relative"
+      className="card cursor-pointer group relative p-5"
       onClick={() => setSelectedSnippet(snippet)}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
-        <div>
-          <h3 className="text-white text-lg font-medium mb-1">{snippet.title}</h3>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-base font-semibold mb-0.5 truncate" style={{ color: 'var(--text-primary)' }}>
+            {snippet.title}
+          </h3>
           {snippet.description && (
-            <p className="text-gray-500 text-sm">{snippet.description}</p>
+            <p className="text-sm truncate" style={{ color: 'var(--text-muted)' }}>
+              {snippet.description}
+            </p>
           )}
         </div>
-        <span className="px-2 py-1 text-xs border border-gray-600 rounded text-gray-400 shrink-0">
+        <span
+          className="pill-filter shrink-0 ml-3 text-[11px] cursor-default"
+          style={{ borderColor: 'var(--accent-secondary)', color: 'var(--accent-secondary)' }}
+        >
           {snippet.language}
         </span>
       </div>
 
       {/* Code Preview */}
-      <div className="relative">
-          <SyntaxHighlighter
-            style={nightOwl}
-            language={snippet.language}
-            customStyle={{
-            background: '#0a0a0a',
-            padding: '16px',
-            borderRadius: '10px',
-            fontSize: '13px',
-            lineHeight: '1.6',
-            border: '1px solid #333',
+      <div className="code-block overflow-hidden" data-syntax={currentSyntaxTheme}>
+        <SyntaxHighlighter
+          style={syntaxStyles[currentSyntaxTheme] || nightOwl}
+          language={snippet.language}
+          customStyle={{
+            background: 'transparent',
+            padding: '0',
             margin: 0,
-            }}
-          >
-            {snippet.code.slice(0, 200)}
-          </SyntaxHighlighter>
+            fontSize: '12px',
+            lineHeight: '1.5',
+          }}
+        >
+          {truncateCode(snippet.code)}
+        </SyntaxHighlighter>
       </div>
 
       {/* Tags */}
       {snippet.tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-3">
+        <div className="flex flex-wrap gap-1.5 mt-3">
           {snippet.tags.map((tag) => (
             <button
               key={tag}
@@ -70,7 +85,7 @@ export default function SnippetCard({ snippet }: { snippet: Snippet }) {
                 e.stopPropagation();
                 setSelectedTags([tag]);
               }}
-              className="text-orange-500/70 hover:text-orange-400 text-xs transition-colors"
+              className="tag-chip"
             >
               #{tag}
             </button>
@@ -78,9 +93,9 @@ export default function SnippetCard({ snippet }: { snippet: Snippet }) {
         </div>
       )}
 
-      {/* Actions */}
-      <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-800">
-        <span className="text-gray-600 text-xs">
+      {/* Footer */}
+      <div className="flex items-center justify-between mt-4 pt-3" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
           {new Date(snippet.updatedAt).toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
@@ -90,7 +105,7 @@ export default function SnippetCard({ snippet }: { snippet: Snippet }) {
         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={copyToClipboard}
-            className="px-3 py-1 text-xs border border-gray-600 rounded text-gray-400 hover:border-white hover:text-white transition-all"
+            className="btn-ghost text-xs py-1 px-3"
           >
             {copied ? 'Copied!' : 'Copy'}
           </button>
@@ -99,7 +114,10 @@ export default function SnippetCard({ snippet }: { snippet: Snippet }) {
               e.stopPropagation();
               deleteSnippet(snippet.id);
             }}
-            className="px-3 py-1 text-xs border border-gray-600 rounded text-gray-400 hover:border-red-500 hover:text-red-400 transition-all"
+            className="text-xs py-1 px-3 rounded-full transition-all cursor-pointer"
+            style={{ border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', background: 'transparent' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.borderColor = '#ef4444'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.3)'; }}
           >
             Delete
           </button>

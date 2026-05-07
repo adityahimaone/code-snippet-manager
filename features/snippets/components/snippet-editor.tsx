@@ -2,197 +2,172 @@
 
 import { useState } from 'react';
 import { useSnippetStore } from '@/lib/store/snippet-store';
-import { SUPPORTED_LANGUAGES, Snippet } from '@/lib/types';
+import { Snippet, SUPPORTED_LANGUAGES, SYNTAX_THEMES } from '@/lib/types';
 import CodePreview from './code-preview';
 
 interface SnippetEditorProps {
-  snippet?: Snippet | null;
+  snippet?: Snippet;
   onClose: () => void;
 }
 
 export default function SnippetEditor({ snippet, onClose }: SnippetEditorProps) {
   const { addSnippet, updateSnippet } = useSnippetStore();
-  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
   const [title, setTitle] = useState(snippet?.title || '');
   const [description, setDescription] = useState(snippet?.description || '');
-  const [code, setCode] = useState(snippet?.code || '');
   const [language, setLanguage] = useState(snippet?.language || 'javascript');
+  const [code, setCode] = useState(snippet?.code || '');
   const [tagsInput, setTagsInput] = useState(snippet?.tags.join(', ') || '');
+  const [syntaxTheme, setSyntaxTheme] = useState(snippet?.syntaxTheme || 'github-dark');
   const [error, setError] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!title.trim()) { setError('Title is required'); return; }
+    if (!code.trim()) { setError('Code is required'); return; }
 
-    if (!title.trim() || !code.trim()) {
-      setError('Title and code are required');
-      return;
-    }
-
-    const tags = tagsInput
-      .split(',')
-      .map((t) => t.trim().toLowerCase())
-      .filter((t) => t.length > 0);
+    const tags = tagsInput.split(',').map((t) => t.trim()).filter(Boolean);
 
     if (snippet) {
-      updateSnippet(snippet.id, {
-        title: title.trim(),
-        description: description.trim(),
-        code,
-        language,
-        tags,
-      });
+      updateSnippet(snippet.id, { title, description, language, code, tags, syntaxTheme });
     } else {
-      addSnippet({
-        title: title.trim(),
-        description: description.trim(),
-        code,
-        language,
-        tags,
-      });
+      addSnippet({ title, description, language, code, tags, syntaxTheme });
     }
-
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto card-virtual relative">
-        {/* Close button */}
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: 'var(--bg-overlay)', backdropFilter: 'blur(4px)' }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div
+        className="card w-full max-w-3xl max-h-[90vh] overflow-y-auto relative"
+        style={{ background: 'var(--bg-card)', padding: '28px' }}
+      >
+        {/* Close */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors z-10"
+          className="absolute top-4 right-4 transition-colors"
+          style={{ color: 'var(--text-muted)' }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
         >
           ✕
         </button>
 
-        <h2 className="text-xl md:text-2xl font-display tracking-tight mb-6">
+        <h2 className="text-xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
           {snippet ? 'Edit Snippet' : 'New Snippet'}
         </h2>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6 border-b border-gray-800">
+        <div className="flex gap-2 mb-6">
           <button
-            type="button"
-            onClick={() => setActiveTab('edit')}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${
-              activeTab === 'edit'
-                ? 'text-orange-500 border-b-2 border-orange-500'
-                : 'text-gray-500 hover:text-white'
-            }`}
+            onClick={() => setShowPreview(false)}
+            className={`pill-filter ${!showPreview ? 'active' : ''}`}
           >
             Edit
           </button>
           <button
-            type="button"
-            onClick={() => setActiveTab('preview')}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${
-              activeTab === 'preview'
-                ? 'text-orange-500 border-b-2 border-orange-500'
-                : 'text-gray-500 hover:text-white'
-            }`}
+            onClick={() => setShowPreview(true)}
+            className={`pill-filter ${showPreview ? 'active' : ''}`}
           >
             Preview
           </button>
         </div>
 
-        {activeTab === 'edit' ? (
-          <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Title */}
-          <div>
-            <label className="block text-orange-500 text-xs font-medium uppercase tracking-wider mb-2">
-              Title
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Snippet title..."
-              className="w-full px-4 py-3 bg-black border-2 border-gray-600 rounded-lg text-white text-sm focus:border-white outline-none transition-colors"
-            />
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-orange-500 text-xs font-medium uppercase tracking-wider mb-2">
-              Description
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Brief description..."
-              rows={2}
-              className="w-full px-4 py-3 bg-black border-2 border-gray-600 rounded-lg text-white text-sm focus:border-white outline-none transition-colors resize-none"
-            />
-          </div>
-
-          {/* Language & Tags Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {!showPreview ? (
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Title */}
             <div>
-              <label className="block text-orange-500 text-xs font-medium uppercase tracking-wider mb-2">
-                Language
-              </label>
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="w-full px-4 py-3 bg-black border-2 border-gray-600 rounded-lg text-white text-sm focus:border-white outline-none transition-colors"
-              >
-                {SUPPORTED_LANGUAGES.map((lang) => (
-                  <option key={lang.value} value={lang.value}>
-                    {lang.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-orange-500 text-xs font-medium uppercase tracking-wider mb-2">
-                Tags (comma separated)
-              </label>
+              <label className="section-label">Title</label>
               <input
                 type="text"
-                value={tagsInput}
-                onChange={(e) => setTagsInput(e.target.value)}
-                placeholder="react, hooks, utility..."
-                className="w-full px-4 py-3 bg-black border-2 border-gray-600 rounded-lg text-white text-sm focus:border-white outline-none transition-colors"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Snippet title..."
+                className="input"
               />
             </div>
-          </div>
 
-          {/* Code */}
-          <div>
-            <label className="block text-orange-500 text-xs font-medium uppercase tracking-wider mb-2">
-              Code
-            </label>
-            <textarea
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder="Paste your code here..."
-              rows={12}
-              className="w-full px-4 py-3 bg-black border-2 border-gray-600 rounded-lg text-white text-sm focus:border-white outline-none transition-colors font-mono resize-y"
-            />
-          </div>
+            {/* Description */}
+            <div>
+              <label className="section-label">Description</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Brief description..."
+                rows={2}
+                className="input resize-none"
+              />
+            </div>
 
-          {/* Error */}
-          {error && (
-            <p className="text-red-400 text-sm">{error}</p>
-          )}
+            {/* Language, Tags, Syntax Theme */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="section-label">Language</label>
+                <select
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  className="input"
+                  style={{ cursor: 'pointer' }}
+                >
+                  {SUPPORTED_LANGUAGES.map((l) => (
+                    <option key={l.value} value={l.value}>{l.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="section-label">Tags (comma separated)</label>
+                <input
+                  type="text"
+                  value={tagsInput}
+                  onChange={(e) => setTagsInput(e.target.value)}
+                  placeholder="react, hooks, utility..."
+                  className="input"
+                />
+              </div>
+              <div>
+                <label className="section-label">Syntax Theme</label>
+                <select
+                  value={syntaxTheme}
+                  onChange={(e) => setSyntaxTheme(e.target.value)}
+                  className="input"
+                  style={{ cursor: 'pointer' }}
+                >
+                  {SYNTAX_THEMES.map((t) => (
+                    <option key={t.value} value={t.value}>{t.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
 
-          {/* Actions */}
-          <div className="flex flex-col-reverse md:flex-row justify-end gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="ghost-button w-full md:w-auto"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="outlined-button w-full md:w-auto"
-            >
-              {snippet ? 'Update Snippet' : 'Save Snippet'}
-            </button>
-          </div>
-        </form>
+            {/* Code */}
+            <div>
+              <label className="section-label">Code</label>
+              <textarea
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                placeholder="Paste your code here..."
+                rows={12}
+                className="input resize-y"
+                style={{ fontFamily: 'var(--font-mono)' }}
+              />
+            </div>
+
+            {error && (
+              <p className="text-sm" style={{ color: '#ef4444' }}>{error}</p>
+            )}
+
+            {/* Actions */}
+            <div className="flex flex-col-reverse md:flex-row justify-end gap-3 pt-4">
+              <button type="button" onClick={onClose} className="btn-ghost w-full md:w-auto">Cancel</button>
+              <button type="submit" className="btn-primary w-full md:w-auto">
+                {snippet ? 'Update Snippet' : 'Save Snippet'}
+              </button>
+            </div>
+          </form>
         ) : (
           <CodePreview code={code} language={language} />
         )}

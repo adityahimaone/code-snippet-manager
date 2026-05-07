@@ -24,38 +24,35 @@ export default function CodePreview({ code, language }: CodePreviewProps) {
       <button
         onClick={handleRun}
         disabled={running}
-        className="outlined-button"
+        className="btn-primary"
       >
         {running ? 'Running...' : '▶ Run Code'}
       </button>
 
       {result && (
-        <div className="bg-black border border-gray-800 rounded-lg p-4 space-y-2">
-          {/* Console logs */}
+        <div className="card p-4 space-y-2" style={{ background: 'var(--bg-code)' }}>
           {result.logs.length > 0 && (
             <div>
-              <div className="text-xs text-gray-500 mb-1">Console:</div>
+              <div className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Console:</div>
               <div className="text-sm font-mono space-y-1">
                 {result.logs.map((log, i) => (
-                  <div key={i} className="text-gray-300">{log}</div>
+                  <div key={i} style={{ color: 'var(--text-secondary)' }}>{log}</div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Return value */}
           {result.output && (
             <div>
-              <div className="text-xs text-gray-500 mb-1">Output:</div>
-              <div className="text-sm font-mono text-green-400">{result.output}</div>
+              <div className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Output:</div>
+              <div className="text-sm font-mono" style={{ color: '#22c55e' }}>{result.output}</div>
             </div>
           )}
 
-          {/* Error */}
           {result.error && (
             <div>
-              <div className="text-xs text-red-500 mb-1">Error:</div>
-              <div className="text-sm font-mono text-red-400">{result.error}</div>
+              <div className="text-xs mb-1" style={{ color: '#ef4444' }}>Error:</div>
+              <div className="text-sm font-mono" style={{ color: '#ef4444' }}>{result.error}</div>
             </div>
           )}
         </div>
