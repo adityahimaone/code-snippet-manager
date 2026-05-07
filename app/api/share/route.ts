@@ -1,52 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
-import { join } from 'path';
+import { nanoid } from 'nanoid';
 
-const SHARED_DIR = join(process.cwd(), '.shared-snippets');
-
-// Ensure directory exists
-if (!existsSync(SHARED_DIR)) {
-  mkdirSync(SHARED_DIR, { recursive: true });
-}
+// In-memory store (replace with DB in production)
+const sharedSnippets = new Map<string, any>();
 
 export async function POST(request: NextRequest) {
   try {
     const snippet = await request.json();
-    const id = Math.random().toString(36).substring(2, 15);
-    const filePath = join(SHARED_DIR, `${id}.json`);
+    const shareId = nanoid(10);
     
-    writeFileSync(filePath, JSON.stringify(snippet, null, 2));
+    sharedSnippets.set(shareId, {
+      ...snippet,
+      sharedAt: new Date().toISOString(),
+    });
     
-    return NextResponse.json({ id, url: `/share/${id}` });
+    return NextResponse.json({ 
+      shareId,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/share/${shareId}`
+    });
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to share snippet' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to share snippet' }, { status: 500 });
   }
 }
 
 export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-    
-    if (!id) {
-      return NextResponse.json({ error: 'ID required' }, { status: 400 });
-    }
-    
-    const filePath = join(SHARED_DIR, `${id}.json`);
-    
-    if (!existsSync(filePath)) {
-      return NextResponse.json({ error: 'Snippet not found' }, { status: 404 });
-    }
-    
-    const snippet = JSON.parse(readFileSync(filePath, 'utf-8'));
-    return NextResponse.json(snippet);
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to load snippet' },
-      { status: 500 }
-    );
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id');
+  
+  if (!id) {
+    return NextResponse.json({ error: 'Share ID required' }, { status: 400 });
   }
+  
+  const snippet = sharedSnippets.get(id);
+  
+  if (!snippet) {
+    return NextResponse.json({ error: 'Snippet not found' }, { status: 404 });
+  }
+  
+  return NextResponse.json(snippet);
 }
