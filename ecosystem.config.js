@@ -11,7 +11,8 @@ module.exports = {
     max_memory_restart: '300M',
     env: {
       NODE_ENV: 'production',
-      PORT: 3003
+      PORT: 3003,
+      NEXT_PUBLIC_BASE_URL: 'https://code-snippet-manager.adityahimaone.space'
     }
   }]
 };

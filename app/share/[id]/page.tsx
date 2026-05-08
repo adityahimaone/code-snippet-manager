@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation';
 
 async function getSharedSnippet(id: string) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/share?id=${id}`, {
+  // Use relative URL - this will work in both dev and prod
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/share?id=${id}`, {
     cache: 'no-store'
   });
   if (!res.ok) return null;
